@@ -8,18 +8,22 @@ import Input from "@/Components/atoms/Input";
 const CallFabricPage = () => {
   const { isConnected, startCall, endCall, isPermissionGranted } = useCall();
   const { user } = useAuth();
-  const [room] = useState(`room_${Date.now()}`);
-  const [directory, setDirectory] = useState<string[]>([room]);
+  const [room, setRoom] = useState<string | null>(null);
+  const [directory, setDirectory] = useState<string[]>([]);
   const [newAddress, setNewAddress] = useState("");
-  const [callHistory, setCallHistory] = useState<string[]>([]);
-  const [, setIsRegistered] = useState(false);
+  const [, setCallHistory] = useState<string[]>([]);
+  const [] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [isCameraOn, setIsCameraOn] = useState(true);
-  const [, setIsScreenSharing] = useState(false);
+  const [] = useState(false);
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
   useEffect(() => {
-    if (isConnected) {
+    setRoom(`room_${Date.now()}`);
+  }, []);
+
+  useEffect(() => {
+    if (isConnected && room) {
       navigator.mediaDevices
         .getUserMedia({ video: isCameraOn, audio: !isMuted })
         .then((stream) => {
@@ -31,7 +35,7 @@ const CallFabricPage = () => {
           console.error("Error accessing media devices:", error)
         );
     }
-  }, [isConnected, isCameraOn, isMuted]);
+  }, [isConnected, isCameraOn, isMuted, room]);
 
   const handleCall = async (targetRoom?: string) => {
     const callTarget = targetRoom || room;
@@ -50,7 +54,7 @@ const CallFabricPage = () => {
   };
 
   const deleteRoom = (roomToDelete: string) => {
-    setDirectory(directory.filter((room) => room !== roomToDelete));
+    setDirectory(directory.filter((r) => r !== roomToDelete));
   };
 
   const addAddress = () => {
@@ -68,7 +72,7 @@ const CallFabricPage = () => {
             <h2 className="text-lg font-bold text-gray-700">Call Console</h2>
             <Input
               type="text"
-              value={room}
+              value={room || "Loading..."}
               readOnly
               className="mb-2 bg-gray-100 text-gray-700"
             />
@@ -156,20 +160,6 @@ const CallFabricPage = () => {
               ))}
             </ul>
           </div>
-        </div>
-        <div className="mt-6 w-[750px] bg-white shadow-md rounded-xl p-6 border border-gray-300">
-          <h2 className="text-lg font-bold text-gray-700">Call History</h2>
-          <ul className="mt-3 space-y-2">
-            {callHistory.length > 0 ? (
-              callHistory.map((call, index) => (
-                <li key={index} className="p-3 bg-gray-100 rounded-md">
-                  {call}
-                </li>
-              ))
-            ) : (
-              <p className="text-gray-500">No call history available.</p>
-            )}
-          </ul>
         </div>
       </div>
     </MainLayout>

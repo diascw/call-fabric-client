@@ -1,6 +1,12 @@
 "use client";
 
-import { createContext, useContext, useState } from "react";
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from "react";
 
 interface CallContextType {
   isConnected: boolean;
@@ -11,18 +17,33 @@ interface CallContextType {
 
 const CallContext = createContext<CallContextType | undefined>(undefined);
 
-export const CallProvider = ({ children }: { children: React.ReactNode }) => {
+const checkPermissions = (): boolean => {
+  if (typeof navigator !== "undefined" && navigator.mediaDevices) {
+    return true;
+  }
+  return false;
+};
+
+const CallProvider = ({ children }: { children: ReactNode }) => {
   const [isConnected, setIsConnected] = useState(false);
-  const [isPermissionGranted, setIsPermissionGranted] = useState(true); // Simulação
+  const [isPermissionGranted, setIsPermissionGranted] = useState(
+    checkPermissions()
+  );
+
+  useEffect(() => {
+    setIsPermissionGranted(checkPermissions());
+  }, []);
 
   const startCall = async (room: string) => {
-    console.log(`Starting call in room: ${room}`);
+    if (!isPermissionGranted) {
+      console.warn("Permissão negada para iniciar a chamada.");
+      return false;
+    }
     setIsConnected(true);
     return true;
   };
 
   const endCall = () => {
-    console.log("Ending call");
     setIsConnected(false);
   };
 
@@ -35,10 +56,12 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
-export const useCall = () => {
+const useCall = () => {
   const context = useContext(CallContext);
   if (!context) {
     throw new Error("useCall must be used within a CallProvider");
   }
   return context;
 };
+
+export { CallProvider, useCall };
