@@ -129,6 +129,8 @@ call-fabric-client/
 | **React Context** | Built-in state management for global state control. |
 | **Tailwind CSS** | A utility-first styling framework. |
 
+For a complete list of dependencies, refer to `package.json`.
+
 ## 🛠️ React Context Usage
 
 React Context is used for managing global application state, providing a seamless way to pass data between components without prop drilling. In this project, it is used to handle user authentication and application state management efficiently.
@@ -166,8 +168,6 @@ export const useAuth = () => {
 };
 
 ```
-
-For a complete list of dependencies, refer to `package.json`.
 
 ## 🛠️ Known Issues
 
